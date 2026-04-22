@@ -1,0 +1,63 @@
+server:
+  port: 9095
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  main:
+    web-application-type: reactive
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8085/realms/api-gateway-application
+
+  cloud:
+    gateway:
+      routes:
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - StripPrefix=0
+
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - StripPrefix=0
+
+        - id: inventory-service
+          uri: lb://INVENTORY-SERVICE
+          predicates:
+            - Path=/api/inventory/**
+          filters:
+            - StripPrefix=0
+
+        - id: discovery-server
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
+
+  management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:admin@localhost:8761/eureka
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: TRACE

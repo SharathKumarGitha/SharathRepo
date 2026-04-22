@@ -1,0 +1,2 @@
+ALTER TABLE orders
+ADD COLUMN product VARCHAR(255);
